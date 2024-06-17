@@ -19,7 +19,7 @@ Azure Kubernetes Service (AKS) is a managed Kubernetes service that lets you qui
 ```Console
 az login --tenant 16b3c013-d300-468d-ac64-7eda0820b6d3
 
-az account set --subscription ce9b673a-0158-4c19-9adf-d76a7f63f498`
+az account set --subscription ce9b673a-0158-4c19-9adf-d76a7f63f498
 ```
 
 ## Export environmental variables
@@ -48,7 +48,13 @@ az group create --name "${RESOURCE_GROUP}" --location "${LOCATION}"
 ### Create AKS Cluster
 
 ```Console
-az aks create --resource-group "${RESOURCE_GROUP}" --name "${CLUSTER_NAME}" --enable-oidc-issuer --enable-workload-identity --generate-ssh-keys
+az aks create \
+--resource-group "${RESOURCE_GROUP}" \
+--name "${CLUSTER_NAME}" \
+--enable-oidc-issuer \
+--enable-workload-identity \
+--generate-ssh-keys \
+--node-count 1
 ```
 
 ### Update existing AKS Cluster
@@ -100,12 +106,12 @@ metadata:
 EOF
 ```
 ## Create the federated identity credential
-
+**Comment:** paste the variable ${AKS_OIDC_ISSUER} add an \r at the end of the traling /. Paste the complete string creates the issuer right.
 ```Console
 az identity federated-credential create --name ${FEDERATED_IDENTITY_CREDENTIAL_NAME} --identity-name "${USER_ASSIGNED_IDENTITY_NAME}" --resource-group "${RESOURCE_GROUP}" --issuer "${AKS_OIDC_ISSUER}" --subject system:serviceaccount:"${SERVICE_ACCOUNT_NAMESPACE}":"${SERVICE_ACCOUNT_NAME}" --audience api://AzureADTokenExchange
 ```
 
-Comment: paste the variable ${AKS_OIDC_ISSUER} add an \r at the end of the traling /. Paste the complete string creates the issuer right.
+
 
 ## Deploy de application
 ### Create Azure Key Vault
@@ -147,6 +153,7 @@ export IDENTITY_PRINCIPAL_ID=$(az identity show --name "${USER_ASSIGNED_IDENTITY
 
 az role assignment create --assignee-object-id "${IDENTITY_PRINCIPAL_ID}" --role "Key Vault Secrets User" --scope "${KEYVAULT_RESOURCE_ID}" --assignee-principal-type ServicePrincipal
 ```
+**At the end the permissions were assigned manually thru Portal**
 
 ### Create and enviroment variable for the KV URL
 
